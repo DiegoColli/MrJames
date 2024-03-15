@@ -1,5 +1,5 @@
 using Microsoft.CognitiveServices.Speech;
-using MrDucky;
+using MrJames;
 using OpenAI.ChatGpt;
 
 

@@ -3,35 +3,16 @@ using Microsoft.CognitiveServices.Speech;
 using OpenAI.ChatGpt;
 using OpenAI.ChatGpt.Models.ChatCompletion.Messaging;
 
-namespace MrDucky;
+namespace MrJames;
 
-class SpeechHelper(OpenAiClient client, SpeechSynthesizer synthesizer, SpeechRecognizer recognizer) : IAsyncDisposable
+class JamesService(OpenAiClient client, SpeechSynthesizer synthesizer, SpeechRecognizer recognizer) : IAsyncDisposable
 {
     private bool _bypassCheck = false;
-
-    private void StartBypassTimer()
-    {
-        Console.WriteLine("Starting bypass");
-        _bypassCheck = true;
-        Task.Run(async () =>
-        {
-            await Task.Delay(10000);
-            _bypassCheck = false;
-            Console.WriteLine("Bypass finalizado");
-        });
-    }
-
+    
     public async Task InitializeAsync()
     {
-        //recognizer.Recognizing += async (s, e) => await RecognizingAsync(e.Result.Text);
         recognizer.Recognized += async (s, e) => await RecognizedAsync(e.Result.Text);
-
         await recognizer.StartContinuousRecognitionAsync();
-    }
-
-    private async Task RecognizingAsync(string text)
-    {
-        Console.WriteLine($"RECOGNIZING: {text}");
     }
 
     private async Task RecognizedAsync(string text)
@@ -69,7 +50,6 @@ class SpeechHelper(OpenAiClient client, SpeechSynthesizer synthesizer, SpeechRec
         }
     }
     
-
     private async Task RepeatTextAsync(string text)
     {
         using var result = await synthesizer.SpeakTextAsync(text);
@@ -83,6 +63,19 @@ class SpeechHelper(OpenAiClient client, SpeechSynthesizer synthesizer, SpeechRec
             Console.WriteLine($"ErrorCode: {cancellation.ErrorCode}\nErrorDetails: {cancellation.ErrorDetails}");
         }
     }
+    
+    private void StartBypassTimer()
+    {
+        Console.WriteLine("Starting bypass");
+        _bypassCheck = true;
+        Task.Run(async () =>
+        {
+            await Task.Delay(10000);
+            _bypassCheck = false;
+            Console.WriteLine("Bypass finalizado");
+        });
+    }
+
 
     public async ValueTask DisposeAsync()
     {
