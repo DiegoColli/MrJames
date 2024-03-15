@@ -9,7 +9,16 @@ config.SpeechRecognitionLanguage = "pt-BR";
 
 var client = new OpenAiClient("gptsecret");
 
-await using var speechHelper = new SpeechHelper(client, new SpeechSynthesizer(config), new SpeechRecognizer(config));
+var speechSynthesizer = new SpeechSynthesizer(config);
+var speechRecognizer = new SpeechRecognizer(config);
+
+var synthesisHandler = new SpeechSynthesisHandler(speechSynthesizer);
+var commandHandler = new CommandHandler(client, synthesisHandler);
+var recognitionHandler = new SpeechRecognitionHandler(speechRecognizer, commandHandler.ProcessCommandAsync);
+
+await using var speechHelper = new JamesService(synthesisHandler, recognitionHandler);
+
+
 await speechHelper.InitializeAsync();
 
 Console.WriteLine("Pressione qualquer tecla para finalizar...");
